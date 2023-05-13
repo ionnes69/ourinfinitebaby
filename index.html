@@ -1,0 +1,2122 @@
+<html lang="en"><head>
+	<script type="text/javascript" src="https://unpkg.com/tone@latest/build/Tone.js"></script>
+  <script type="text/javascript" src="https://unpkg.com/@tonejs/midi"></script>
+  
+
+
+   
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+   
+   
+	<style>
+	  #controls {
+		position: relative;
+		z-index: 1000;
+		transform: scale(0.5);
+		transform-origin: top center;
+	  }
+	  body {
+      background-image: url('https://s3.amazonaws.com/cms.ipressroom.com/296/files/20183/5acba4122cfac22e8b5bb9ba_GettyImages-607509194/GettyImages-607509194_fc36b135-fe74-490f-a667-6f58c57078ff-prv.jpg');
+      background-repeat: no-repeat;
+      background-size: cover;
+      background-position: center;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      flex-direction: column;
+    }
+	  #canvas-container {
+		position: relative;
+		width: 50%;
+		height: 50%;
+		max-width: calc(100vw - 20px); /* subtract 20px to account for padding and borders */
+		max-height: calc(100vh - 220px); /* subtract 220px to account for the height of the input container */
+	  }
+	  #canvas-container canvas {
+		position: absolute;
+		top: 0;
+		left: 0;
+		width: 100%;
+		height: 100%;
+	  }
+#controls {
+	display: none;
+  }
+   
+	/* Add this CSS to your existing <style> section */
+   
+   
+	</style>
+   
+   
+	<title>Two Synths with Conditional Triggers</title>
+  </head>
+  <body style="background-color: rgb(86, 54, 53);">
+	<div id="container">
+		<div id="controls">
+		  <div id="JsonFileDrop">
+			<input type="file" id="jsonFileInput" accept=".json" />
+			<div id="jsonText">Drop JSON file here or click to upload</div>
+	 
+	 
+		  </div>
+   
+	<br>
+1 BPM: <input type="number" id="bpm1" value="30">
+	<br>
+2 BPM: <input type="number" id="bpm2" value="60">
+	<br>
+3 BPM: <input type="number" id="bpm3" value="90">
+	<br>
+4 BPM: <input type="number" id="bpm4" value="15">
+	<br>
+5 BPM: <input type="number" id="bpm5" value="150">
+	<br>
+6 BPM: <input type="number" id="bpm6" value="1000">
+	<br>
+1 Volume: <input type="range" id="volume1" min="0" max="1" step="0.01" value="0.05">
+   
+2 Volume: <input type="range" id="volume2" min="0" max="1" step="0.01" value="0.05">
+   
+3 Volume: <input type="range" id="volume3" min="0" max="1" step="0.01" value="0.05">
+   
+4 Volume: <input type="range" id="volume4" min="0" max="1" step="0.01" value="0.05">
+ 5 Volume: <input type="range" id="volume5" min="0" max="1" step="0.01" value="0.05">
+6 Volume: <input type="range" id="volume6" min="0" max="1" step="0.01" value="0.05">
+
+	<br>
+1 Attack: <input type="range" id="attack1" min="0" max="2" step="0.01" value="0.2">
+1 Decay: <input type="range" id="decay1" min="0" max="2" step="0.01" value="0.4">
+1 Sustain: <input type="range" id="sustain1" min="0" max="1" step="0.01" value="0.4">
+1 Release: <input type="range" id="release1" min="0" max="2" step="0.01" value="0.2">
+	<br>
+2 Attack: <input type="range" id="attack2" min="0" max="2" step="0.01" value="0.2">
+2 Decay: <input type="range" id="decay2" min="0" max="2" step="0.01" value="0.2">
+2 Sustain: <input type="range" id="sustain2" min="0" max="1" step="0.01" value="0.2">
+2 Release: <input type="range" id="release2" min="0" max="2" step="0.01" value="0.2">
+	<br>
+3 Attack: <input type="range" id="attack3" min="0" max="2" step="0.01" value="0.2">
+3 Decay: <input type="range" id="decay3" min="0" max="2" step="0.01" value="0.2">
+3 Sustain: <input type="range" id="sustain3" min="0" max="1" step="0.01" value="0.3">
+3 Release: <input type="range" id="release3" min="0" max="2" step="0.01" value="0.4">
+  <br>
+4 Attack: <input type="range" id="attack4" min="0" max="2" step="0.01" value="0.2">
+ 4 Decay: <input type="range" id="decay4" min="0" max="2" step="0.01" value="0.2">
+4 Sustain: <input type="range" id="sustain4" min="0" max="1" step="0.01" value="0.2">
+ 4 Release: <input type="range" id="release4" min="0" max="2" step="0.01" value="0.2">
+	<br>
+ 5 Attack: <input type="range" id="attack5" min="0" max="2" step="0.01" value="0.2">
+ 5 Decay: <input type="range" id="decay5" min="0" max="2" step="0.01" value="0.3">
+ 5 Sustain: <input type="range" id="sustain5" min="0" max="1" step="0.01" value="0.3">
+	5 Release: <input type="range" id="release5" min="0" max="2" step="0.01" value="0.3">
+  <br>
+
+  6 Attack: <input type="range" id="attack6" min="0" max="2" step="0.01" value="0.0">
+6 Decay: <input type="range" id="decay6" min="0" max="2" step="0.01" value="0.2">
+6 Sustain: <input type="range" id="sustain6" min="0" max="1" step="0.01" value="0.2">
+6 Release: <input type="range" id="release6" min="0" max="2" step="0.01" value="0.2">
+   
+   
+  </div>
+  <div id="canvas-container" style="width: 186px; height: 932px;">
+	<canvas id="myCanvas"></canvas>
+  </div>
+  </div>
+  
+  <script>
+   
+   
+  // Add this JavaScript to your existing <script> section
+   
+   
+ let audioContext = new (window.AudioContext || window.webkitAudioContext)();
+  let oscillator1, gainNode1, oscillator2, gainNode2, gainNode3, oscillator3, gainNode4, oscillator4, oscillator5, gainNode5, oscillator6, gainNode6;
+   
+   
+   
+   
+   
+   
+   
+   
+   
+  document.body.addEventListener("click", togglePlaying);
+  document.body.addEventListener("touchstart", togglePlaying);
+   
+  
+   
+  function togglePlaying(event) {
+  console.log('Oscillator states:', {
+    playing1,
+    playing2,
+    playing3,
+    playing4,
+    playing5,
+    playing6,
+  });
+  const controlsContainer = document.getElementById('controls');
+  if (controlsContainer.contains(event.target)) {
+    // If the click event target is within the controls container, do nothing
+    return;
+  }
+
+  if (!playing1 && !playing2 && !playing3 && !playing4 && !playing5 && !playing6) {
+    startPlaying();
+  } else {
+    stopPlaying();
+  }
+}
+
+let delayNode = audioContext.createDelay();
+
+function createDelayNode(delayTime, feedbackGain) {
+  const delayNode = audioContext.createDelay();
+  const feedbackGainNode = audioContext.createGain();
+
+  delayNode.delayTime.value = delayTime;
+  feedbackGainNode.gain.value = feedbackGain;
+
+  delayNode.connect(feedbackGainNode);
+  feedbackGainNode.connect(delayNode);
+
+  return delayNode;
+}
+
+const centerX = window.innerWidth / 2;
+const centerY = window.innerHeight / 2;
+
+const onButton = document.getElementById('onButton');
+const offButton = document.getElementById('offButton');
+
+const bpmInput1 = document.getElementById('bpm1');
+const bpmInput2 = document.getElementById('bpm2');
+const bpmInput3 = document.getElementById('bpm3');
+const bpmInput4 = document.getElementById('bpm4');
+const bpmInput5 = document.getElementById('bpm5');
+
+const attackInput1 = document.getElementById('attack1');
+const decayInput1 = document.getElementById('decay1');
+const sustainInput1 = document.getElementById('sustain1');
+const releaseInput1 = document.getElementById('release1');
+
+const attackInput2 = document.getElementById('attack2');
+const decayInput2 = document.getElementById('decay2');
+const sustainInput2 = document.getElementById('sustain2');
+const releaseInput2 = document.getElementById('release2');
+
+const attackInput3 = document.getElementById('attack3');
+const decayInput3 = document.getElementById('decay3');
+const sustainInput3 = document.getElementById('sustain3');
+const releaseInput3 = document.getElementById('release3');
+
+const attackInput4 = document.getElementById('attack4');
+const decayInput4 = document.getElementById('decay4');
+const sustainInput4 = document.getElementById('sustain4');
+const releaseInput4 = document.getElementById('release4');
+
+const attackInput5 = document.getElementById('attack5');
+const decayInput5 = document.getElementById('decay5');
+const sustainInput5 = document.getElementById('sustain5');
+const releaseInput5 = document.getElementById('release5');
+
+const volumeInput1 = document.getElementById('volume1');
+const volumeInput2 = document.getElementById('volume2');
+const volumeInput3 = document.getElementById('volume3');
+const volumeInput4 = document.getElementById('volume4');
+const volumeInput5 = document.getElementById('volume5');
+
+const bpmInput6 = document.getElementById('bpm6');
+
+const attackInput6 = document.getElementById('attack6');
+const decayInput6 = document.getElementById('decay6');
+const sustainInput6 = document.getElementById('sustain6');
+const releaseInput6 = document.getElementById('release6');
+
+const volumeInput6 = document.getElementById('volume6');
+
+   
+   
+  // Get the height of the input container
+  const inputContainerHeight = document.getElementById('controls').offsetHeight;
+   
+  // Calculate the height of the canvas container as a square that is 75% of the window size
+  const canvasContainerHeight = Math.floor(window.innerHeight - inputContainerHeight);
+  const canvasContainerWidth = Math.floor(canvasContainerHeight * 0.2);
+   
+  // Set the height and width of the canvas container
+  const canvasContainer = document.getElementById('canvas-container');
+  canvasContainer.style.width = canvasContainerWidth + 'px';
+  canvasContainer.style.height = canvasContainerHeight + 'px';
+   
+   
+   
+  const colors = [
+	"antiquewhite",
+	"#ef476f",
+	"#ffd166",
+	"#563635",
+	"#06d6a0",
+	"#118ab2",
+	"#ef476f",
+	"#ffd166",
+	"#06d6a0",
+	"#118ab2"
+  ];
+   
+  const colorPalette = ['#87CEEB'];
+
+  function getRandomColorFromPalette() {
+	return colorPalette[Math.floor(Math.random() * colorPalette.length)];
+  }
+   
+  /*document.body.style.backgroundColor = getRandomColorFromPalette();*/
+   
+  
+   
+  let playing1 = false;
+  let playing2 = false;
+  let playing3 = false;
+  let playing4 = false;
+  let playing5 = false;
+  let playing6 = false;
+   
+  let timeout1, timeout2, timeout3, timeout4, timeout5, timeout6;
+   
+  const notes = [
+  99, 104.25, 132, 159.75, 185.25, 213, 198, 208.5, 264, 319.5, 370.5, 426, 396, 417, 528, 639, 741, 852
+  ];
+const notesCSharp = [138.59, 155.56, 174.61, 185.00, 207.65, 233.08, 261.63, 277.18, 311.13, 349.23, 369.99, 415.30, 466.16, 523.25];
+const notesD = [146.83, 164.81, 185.00, 196.00, 220.00, 246.94, 277.18, 293.66, 329.63, 369.99, 392.00, 440.00, 493.88, 554.37];
+const notesEFlat = [155.56, 174.61, 195.99, 207.65, 233.08, 261.63, 293.66, 311.13, 349.23, 391.99, 415.30, 466.16, 523.25, 587.33];
+const notesE = [164.81, 185.00, 207.65, 220.00, 246.94, 277.18, 311.13, 329.63, 369.99, 415.30, 440.00, 493.88, 554.37, 622.25];
+const notesF = [174.61, 195.99, 220.00, 233.08, 261.63, 293.66, 329.63, 349.23, 391.99, 440.00, 466.16, 523.25, 587.33, 659.25];
+const notesFSharp = [184.99, 207.65, 233.08, 246.94, 277.18, 311.13, 349.23, 369.99, 415.30, 466.16, 493.88, 554.37, 622.25, 698.46];
+const notesG = [196.00, 220.00, 246.94, 261.63, 293.66, 329.63, 369.99, 392.00, 440.00, 493.88, 523.25, 587.33, 659.25, 739.99];
+const notesGSharp = [207.65, 233.08, 261.63, 277.18, 311.13, 349.23, 391.99, 415.30, 466.16, 523.25, 554.37, 622.25, 698.46, 783.99];
+const notesA = [220.00, 246.94, 277.18, 293.66, 329.63, 369.99, 415.30, 440.00, 493.88, 554.37, 587.33, 659.25, 739.99, 830.61];
+const notesBFlat = [233.08, 261.63, 293.66, 311.13, 349.23, 391.99, 440.00, 466.16, 523.25, 587.33, 622.25, 698.46, 783.99, 880.00];
+const notesB = [246.94, 277.18, 311.13, 329.63, 369.99, 415.30, 466.16, 493.88, 554.37, 622.25, 659.25, 739.99, 830.61, 932.33];
+const notesCMinor = [130.81, 146.83, 155.56, 174.61, 196.00, 220.00, 233.08, 261.63, 293.66, 311.13, 349.23, 392.00, 440.00, 466.16];
+
+const notesCSharpMinor = [138.59, 155.56, 164.81, 185.00, 207.65, 233.08, 246.94, 277.18, 311.13, 329.63, 369.99, 415.30, 466.16, 493.88];
+const notesDMinor = [146.83, 164.81, 174.61, 196.00, 220.00, 246.94, 261.63, 293.66, 329.63, 349.23, 392.00, 440.00, 493.88, 523.25];
+const notesEFlatMinor = [155.56, 174.61, 185.00, 207.65, 233.08, 261.63, 277.18, 311.13, 349.23, 369.99, 415.30, 466.16, 523.25, 554.37];
+const notesEMinor = [164.81, 185.00, 195.99, 220.00, 246.94, 277.18, 293.66, 329.63, 369.99, 391.99, 440.00, 493.88, 554.37, 587.33];
+const notesFMinor = [174.61, 195.99, 207.65, 233.08, 261.63, 293.66, 311.13, 349.23, 391.99, 415.30, 466.16, 523.25, 587.33, 622.25];
+const notesFSharpMinor = [184.99, 207.65, 220.00, 246.94, 277.18, 311.13, 329.63, 369.99, 415.30, 440.00, 493.88, 554.37, 622.25, 659.25];
+const notesGMinor = [196.00, 220.00, 233.08, 261.63, 293.66, 329.63, 349.23, 392.00, 440.00, 466.16, 523.25, 587.33, 659.25, 698.46];
+const notesGSharpMinor = [207.65, 233.08, 246.94, 277.18, 311.13, 349.23, 369.99, 415.30, 466.16, 493.88, 554.37, 622.25, 698.46, 739.99];
+const notesAMinor = [220.00, 246.94, 261.63, 293.66, 329.63, 369.99, 392.00, 440.00, 493.88, 523.25, 587.33, 659.25, 739.99, 783.99];
+
+
+  const noteC = notes[7]; // C4
+  const noteG = notes[11]; // G4
+  const noteB = notes[13]; // B4
+  const noteD = notes[8]; // D4
+  const noteE = notes[9]; // E4
+  const noteE3 = notes[2]; // E4
+  const noteF = notes[10];
+   
+   
+  function getRandomColor() {
+	const randomIndex = Math.floor(Math.random() * colors.length);
+	return colors[randomIndex];
+  }
+  function radians(degrees) {
+	return degrees * (Math.PI / 180);
+  }
+   
+  function cos(angle) {
+	return Math.cos(angle);
+  }
+   
+  function sin(angle) {
+	return Math.sin(angle);
+  }
+   
+  function random(array) {
+	return array[Math.floor(Math.random() * array.length)];
+  }
+   
+   
+  
+  
+  
+  
+  
+  
+  
+  
+  function startPlaying() {
+	if (!playing1) {
+	  playing1 = true;
+	  playRandomNote1();
+	}
+  }
+   
+   
+  function stopPlaying() {
+	if (playing1) {
+	  playing1 = false;
+	  if (oscillator1) {
+		oscillator1.stop();
+		try {
+		  oscillator1.disconnect(gainNode1);
+		  gainNode1.disconnect(delayNode); // Disconnect gainNode1 from delayNode
+		  delayNode.disconnect(feedbackGainNode);
+		  feedbackGainNode.disconnect(delayNode);
+		  delayNode.disconnect(audioContext.destination); // Disconnect delayNode from audioContext.destination
+		} catch (error) {
+		  console.warn('Oscillator1 is not connected to gainNode1:', error);
+		}
+	  }
+	  clearTimeout(timeout1);
+	}
+   
+   
+	if (playing2) {
+	  playing2 = false;
+	  if (oscillator2) {
+		oscillator2.stop();
+		try {
+		  oscillator2.disconnect(gainNode2);
+		} catch (error) {
+		  console.warn('Oscillator2 is not connected to gainNode2:', error);
+		}
+	  }
+	  clearTimeout(timeout2); // Clear the scheduled callback for Synth 2
+	}
+   
+	if (playing3) {
+	  playing3 = false;
+	  if (oscillator3) {
+		oscillator3.stop();
+		try {
+		  oscillator3.disconnect(gainNode3);
+		} catch (error) {
+		  console.warn('Oscillator3 is not connected to gainNode3:', error);
+		}
+	  }
+	  clearTimeout(timeout3); // Clear the scheduled callback for Synth 3
+	}
+   
+	if (playing4) {
+	  playing4 = false;
+	  if (oscillator4) {
+		oscillator4.stop();
+		try {
+		  oscillator4.disconnect(gainNode4);
+		} catch (error) {
+		  console.warn('Oscillator4 is not connected to gainNode4:', error);
+		}
+	  }
+	  clearTimeout(timeout4); // Clear the scheduled callback for Synth 4
+	}
+   
+	if (playing5) {
+	  playing5 = false;
+	  if (oscillator5) {
+		oscillator5.stop();
+		try {
+		  oscillator5.disconnect(gainNode5);
+		} catch (error) {
+		  console.warn('Oscillator5 is not connected to gainNode5:', error);
+		}
+	  }
+	  clearTimeout(timeout5); // Clear the scheduled callback for Synth 5
+	}
+   
+  if (playing6) {
+	  playing6 = false;
+	  if (oscillator6) {
+		oscillator6.stop();
+		try {
+		  oscillator6.disconnect(gainNode6);
+		} catch (error) {
+		  console.warn('Oscillator6 is not connected to gainNode6:', error);
+		}
+	  }
+	  clearTimeout(timeout6); // Clear the scheduled callback for Synth 5
+	}
+	
+  }
+   
+   
+   
+   
+   
+  // Define the dimensions of the square window
+  let squareSize = 500;
+   
+  // Calculate the position of the square window relative to the full window size
+  let squareX = (window.innerWidth - squareSize) / 2;
+  let squareY = (window.innerHeight - squareSize) / 2;
+   
+  // Modify the startX and startY variables to generate random coordinates within the square window
+  let startX = squareX + Math.random() * squareSize;
+  let startY = squareY + Math.random() * squareSize;
+   
+  let linePositions = [{ x: startX, y: startY }];
+   
+  // underlying canvas
+  const canvas = document.createElement('canvas');
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
+  canvas.style.position = 'absolute';
+  canvas.style.top = '0';
+  canvas.style.left = '0';
+  canvas.style.zIndex = '500';
+  document.body.appendChild(canvas);
+   
+  function drawMerkabaOutline() {
+  const ctx = canvas.getContext('2d');
+  ctx.strokeStyle = 'white';
+  ctx.lineWidth = 0.5;
+
+  const centerX = squareX + squareSize / 2;
+  const centerY = squareY + squareSize / 2;
+  const triangleSide = squareSize / 2;
+
+  const triangleHeight = (Math.sqrt(3) / 2) * triangleSide;
+
+  ctx.beginPath();
+
+  // Drawing the upper triangle
+  ctx.moveTo(centerX, centerY - triangleHeight / 2);
+  ctx.lineTo(centerX + triangleSide / 2, centerY + triangleHeight / 2);
+  ctx.lineTo(centerX - triangleSide / 2, centerY + triangleHeight / 2);
+  ctx.closePath();
+
+  // Drawing the lower triangle
+  ctx.moveTo(centerX, centerY + triangleHeight / 2);
+  ctx.lineTo(centerX + triangleSide / 2, centerY - triangleHeight / 2);
+  ctx.lineTo(centerX - triangleSide / 2, centerY - triangleHeight / 2);
+  ctx.closePath();
+
+  // Connecting the vertices to form the Merkaba
+  ctx.moveTo(centerX, centerY - triangleHeight / 2);
+  ctx.lineTo(centerX, centerY + triangleHeight / 2);
+  ctx.moveTo(centerX + triangleSide / 2, centerY + triangleHeight / 2);
+  ctx.lineTo(centerX - triangleSide / 2, centerY - triangleHeight / 2);
+  ctx.moveTo(centerX - triangleSide / 2, centerY + triangleHeight / 2);
+  ctx.lineTo(centerX + triangleSide / 2, centerY - triangleHeight / 2);
+
+  ctx.stroke();
+}
+
+// Call the function to draw the Merkaba outline
+drawMerkabaOutline();
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+   
+   
+  const ctx = canvas.getContext('2d', { willReadFrequently: true });
+   
+	function calculateEndPosition(latestPos, angle, length) {
+	let endX = latestPos.x + cos(angle) * length;
+	let endY = latestPos.y + sin(angle) * length;
+   
+	while (endX < 0 || endX > 500 || endY < 0 || endY > 500) {
+	  angle = radians(random([0, 90, 180, 270, 540, 720]));
+	  length = random([25, 15, 100]);
+	  endX = latestPos.x + cos(angle) * length;
+	  endY = latestPos.y + sin(angle) * length;
+	}
+   
+	return { x: endX, y: endY };
+  }
+   
+   
+  function drawLine(color) {
+  ctx.lineWidth = 0.5;
+
+  const latestPos = linePositions[linePositions.length - 1];
+
+  const windSpeed = 3;
+  const noiseScale = 0.1;
+
+  let currentTime = 0;
+  const bpm1 = parseFloat(bpmInput1.value);
+  const duration1 = 60 / bpm1;
+  const totalTime = duration1 * 1000;
+
+  function drawAnimatedLine() {
+    if (currentTime >= totalTime) {
+      linePositions.push({ x: latestPos.x, y: latestPos.y });
+      return;
+    }
+
+    const windDirection = Math.random() * Math.PI * 2;
+    const windOffsetX = Math.cos(windDirection) * windSpeed;
+    const windOffsetY = Math.sin(windDirection) * windSpeed;
+
+    const partialLength = 1;
+    const partialEndX = latestPos.x + windOffsetX * partialLength;
+    const partialEndY = latestPos.y + windOffsetY * partialLength;
+
+    // Check if the new end point is within the square
+    if (
+      partialEndX >= squareX &&
+      partialEndX <= squareX + squareSize &&
+      partialEndY >= squareY &&
+      partialEndY <= squareY + squareSize
+    ) {
+      ctx.clearRect(
+        Math.min(latestPos.x, partialEndX) - ctx.lineWidth,
+        Math.min(latestPos.y, partialEndY) - ctx.lineWidth,
+        Math.abs(latestPos.x - partialEndX) + 2 * ctx.lineWidth,
+        Math.abs(latestPos.y - partialEndY) + 2 * ctx.lineWidth
+      );
+
+      ctx.beginPath();
+      ctx.moveTo(latestPos.x, latestPos.y);
+      ctx.lineTo(partialEndX, partialEndY);
+      ctx.strokeStyle = color;
+      ctx.stroke();
+
+      latestPos.x = partialEndX;
+      latestPos.y = partialEndY;
+    }
+
+    currentTime += 1000 / 60;
+    requestAnimationFrame(drawAnimatedLine);
+  }
+
+  drawAnimatedLine();
+}
+   
+
+
+
+
+
+let numCirclesDrawn = 0;
+let currentCircleProgress = 0;
+let layer = 0;
+let position = 0;
+let animationId = null;
+
+function drawFlowerOfLife(color, lineWidth, alpha) { // added alpha parameter
+  const centerX = canvas.width / 2;
+  const centerY = canvas.height / 2;
+  const radius = 15;
+
+  if (position >= layer * 6 + 6) {
+    layer++;
+    position = 0;
+  }
+
+  let x, y;
+  if (numCirclesDrawn === 0) {
+    x = centerX;
+    y = centerY;
+  } else {
+    const distance = (layer + 1) * radius; 
+    const angle = (2 * Math.PI / (layer * 6 + 6)) * position; 
+    x = centerX + distance * Math.cos(angle);
+    y = centerY + distance * Math.sin(angle);
+  }
+
+  const bpm1 = parseFloat(bpmInput1.value);
+  const secondsPerBeat = 60 / bpm1;
+  const millisecondsPerBeat = secondsPerBeat * 1000;
+  const progressPerMillisecond = 1 / millisecondsPerBeat;
+
+  currentCircleProgress += progressPerMillisecond;
+
+  if (currentCircleProgress >= 1) {
+    numCirclesDrawn++;
+    position++;
+    currentCircleProgress = 0;
+  }
+
+  const previousLineWidth = ctx.lineWidth;
+  const previousAlpha = ctx.globalAlpha;
+
+  ctx.lineWidth = lineWidth;
+  ctx.strokeStyle = color;
+  ctx.globalAlpha = alpha; // use alpha parameter
+
+  ctx.beginPath();
+  ctx.arc(x, y, radius, 0, 2 * Math.PI * currentCircleProgress, false);
+  ctx.stroke();
+
+  ctx.lineWidth = previousLineWidth;
+  ctx.globalAlpha = previousAlpha;
+
+  animationId = requestAnimationFrame(() => drawFlowerOfLife(color, lineWidth, alpha)); // pass alpha to recursive function call
+}
+
+function startAnimation() {
+  if (animationId === null) {
+    const color = 'white';
+    const lineWidth = 0.2; 
+    const alpha = 0.2; // Define alpha value here
+    drawFlowerOfLife(color, lineWidth, alpha); // Pass alpha to function call
+  }
+}
+
+function stopAnimation() {
+  if (animationId !== null) {
+    cancelAnimationFrame(animationId);
+    animationId = null;
+  }
+}
+
+canvas.addEventListener('touchstart', startAnimation);
+canvas.addEventListener('mousedown', startAnimation);
+canvas.addEventListener('touchend', stopAnimation);
+canvas.addEventListener('mouseup', stopAnimation);
+canvas.addEventListener('mouseleave', stopAnimation);
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+   
+   
+   
+   
+   
+   
+   
+   
+   
+   
+   
+   
+   
+   
+   
+   
+  function drawLine2(color, startPosition) {
+	ctx.lineWidth = 0.5;
+   
+	const latestPos = linePositions[linePositions.length - 1];
+	const angle = radians(random([0, 90, 270, 540]));
+	const length = 20;
+	const endX = latestPos.x + cos(angle) * length;
+	const endY = latestPos.y + sin(angle) * length;
+   
+	let currentTime = 0;
+	const bpm2 = parseFloat(bpmInput2.value);
+	const duration2 = 60 / bpm2;
+	const totalTime = duration2 * 1000;
+   
+	function drawAnimatedLine() {
+	  if (currentTime >= totalTime) {
+		linePositions.push({ x: endX, y: endY, canvas: canvas });
+		return;
+	  }
+   
+	  const partialLength = length * (currentTime / totalTime);
+	  const partialEndX = latestPos.x + cos(angle) * partialLength;
+	  const partialEndY = latestPos.y + sin(angle) * partialLength;
+   
+	  ctx.clearRect(
+		Math.min(latestPos.x, partialEndX) - ctx.lineWidth,
+		Math.min(latestPos.y, partialEndY) - ctx.lineWidth,
+		Math.abs(latestPos.x - partialEndX) + 2 * ctx.lineWidth,
+		Math.abs(latestPos.y - partialEndY) + 2 * ctx.lineWidth
+	  );
+   
+	  ctx.beginPath();
+	  ctx.moveTo(latestPos.x, latestPos.y);
+   
+	  const numSegments = 100;
+	  for (let i = 1; i <= numSegments; i++) {
+		const segmentProgress = i / numSegments;
+		if (segmentProgress * length > partialLength) break;
+		const segmentX = latestPos.x + cos(angle) * length * segmentProgress;
+		const segmentY = latestPos.y + sin(angle) * length * segmentProgress;
+   
+		const pencilWidth = Math.random() * 1 + 1; // Increase the width
+		const pencilOpacity = Math.random() * 0.8 + 0.8; // Increase the opacity for a brighter glow
+   
+		ctx.lineWidth = pencilWidth;
+		ctx.strokeStyle = color;
+   
+   
+		ctx.beginPath();
+		ctx.moveTo(segmentX - pencilWidth / 2, segmentY - pencilWidth / 2);
+		ctx.lineTo(segmentX + pencilWidth / 2, segmentY + pencilWidth / 2);
+		ctx.stroke();
+	  }
+   
+	  currentTime += 1000 / 60;
+	  requestAnimationFrame(drawAnimatedLine);
+	}
+   
+	drawAnimatedLine();
+  }
+   
+   
+   
+   
+   
+   
+   
+   
+  function drawLine3(color, startPosition) {
+   
+	ctx.lineWidth = 1;
+	const latestPos = linePositions[linePositions.length - 1];
+	const angle = radians(random([0, 90, 270, 540]));
+	const length = 100;
+	const endX = latestPos.x + cos(angle) * length;
+	const endY = latestPos.y + sin(angle) * length;
+   
+   
+	let currentTime = 0;
+	const bpm3 = parseFloat(bpmInput3.value);
+	const duration3 = 60 / bpm3;
+	const totalTime = duration3 * 1000;
+   
+	function drawAnimatedLine() {
+	if (currentTime >= totalTime) {
+	  linePositions.push({ x: endX, y: endY, canvas: canvas });
+	  return;
+	}
+   
+	const partialLength = length * (currentTime / totalTime);
+	const partialEndX = latestPos.x + cos(angle) * partialLength;
+	const partialEndY = latestPos.y + sin(angle) * partialLength;
+   
+	ctx.clearRect(
+	  Math.min(latestPos.x, partialEndX) - ctx.lineWidth,
+	  Math.min(latestPos.y, partialEndY) - ctx.lineWidth,
+	  Math.abs(latestPos.x - partialEndX) + 2 * ctx.lineWidth,
+	  Math.abs(latestPos.y - partialEndY) + 2 * ctx.lineWidth
+	);
+   
+	ctx.beginPath();
+	ctx.moveTo(latestPos.x, latestPos.y);
+   
+	const numSegments = 100;
+	for (let i = 1; i <= numSegments; i++) {
+	  const segmentProgress = i / numSegments;
+	  if (segmentProgress * length > partialLength) break;
+	  const segmentX = latestPos.x + cos(angle) * length * segmentProgress;
+	  const segmentY = latestPos.y + sin(angle) * length * segmentProgress;
+   
+	  const pencilWidth = Math.random() * 0.5 + 0.5;
+	  const pencilOpacity = Math.random() * 0.5 + 0.5;
+   
+	  ctx.lineWidth = pencilWidth;
+	  ctx.strokeStyle = color;
+   
+   
+	  ctx.beginPath();
+	  ctx.moveTo(segmentX - pencilWidth / 2, segmentY - pencilWidth / 2);
+	  ctx.lineTo(segmentX + pencilWidth / 2, segmentY + pencilWidth / 2);
+	  ctx.stroke();
+	}
+   
+	currentTime += 1000 / 60;
+	requestAnimationFrame(drawAnimatedLine);
+  }
+   
+   
+	drawAnimatedLine();
+  }
+   
+   
+   
+   
+  function calculateEndPosition(latestPos, angle, length, squareX, squareY, squareSize) {
+	let endX = latestPos.x + cos(angle) * length;
+	let endY = latestPos.y + sin(angle) * length;
+   
+	while (endX < squareX || endX > squareX + squareSize || endY < squareY || endY > squareY + squareSize) {
+	  angle = radians(random([0, 90, 180, 270, 540, 720]));
+	  length = random([25, 15, 100]);
+	  endX = latestPos.x + cos(angle) * length;
+	  endY = latestPos.y + sin(angle) * length;
+	}
+   
+	return { x: endX, y: endY };
+  }
+   
+   
+   
+   
+   
+  let startX2 = Math.random() * window.innerWidth;
+  let startY2 = Math.random() * window.innerHeight;
+  let linePositions2 = [{ x: startX2, y: startY2 }];
+   
+  function drawLine4(color) {
+   
+	ctx.strokeStyle = color;
+	ctx.lineWidth = 1;
+   
+	const latestPos = linePositions2[linePositions2.length - 1];
+	const angle = radians(random([0, 90, 180, 270, 540, 720]));
+   
+	const length = 50;
+	const endPos = calculateEndPosition(latestPos, angle, length, squareX, squareY, squareSize);
+  let endX = endPos.x;
+  let endY = endPos.y;
+   
+  if (endX < squareX || endX > squareX + squareSize || endY < squareY || endY > squareY + squareSize) {
+	endX = squareX + Math.random() * squareSize;
+	endY = squareY + Math.random() * squareSize;
+  }
+   
+   
+   
+   
+	let currentTime = 0;
+  const bpm1 = parseFloat(bpmInput1.value);
+  const duration1 = 60 / bpm1;
+  const totalTime = duration1 * 1000; // Now totalTime is controlled by Synth 1 BPM
+   
+   
+  function drawAnimatedLine() {
+	if (currentTime >= totalTime) {
+	  linePositions.push({ x: endX, y: endY, canvas: canvas });
+	  return;
+	}
+   
+	const partialLength = length * (currentTime / totalTime);
+	const partialEndX = latestPos.x + cos(angle) * partialLength;
+	const partialEndY = latestPos.y + sin(angle) * partialLength;
+   
+	ctx.clearRect(
+	  Math.min(latestPos.x, partialEndX) - ctx.lineWidth,
+	  Math.min(latestPos.y, partialEndY) - ctx.lineWidth,
+	  Math.abs(latestPos.x - partialEndX) + 2 * ctx.lineWidth,
+	  Math.abs(latestPos.y - partialEndY) + 2 * ctx.lineWidth
+	);
+   
+	ctx.beginPath();
+	ctx.moveTo(latestPos.x, latestPos.y);
+   
+	const numSegments = 100;
+	for (let i = 1; i <= numSegments; i++) {
+	  const segmentProgress = i / numSegments;
+	  if (segmentProgress * length > partialLength) break;
+	  const segmentX = latestPos.x + cos(angle) * length * segmentProgress;
+	  const segmentY = latestPos.y + sin(angle) * length * segmentProgress;
+   
+	  const pencilWidth = Math.random() * 0.5 + 0.5;
+	  const pencilOpacity = Math.random() * 0.5 + 0.5;
+   
+	  ctx.lineWidth = pencilWidth;
+	  ctx.strokeStyle = color;
+   
+   
+   
+	  ctx.beginPath();
+	  ctx.moveTo(segmentX - pencilWidth / 2, segmentY - pencilWidth / 2);
+	  ctx.lineTo(segmentX + pencilWidth / 2, segmentY + pencilWidth / 2);
+	  ctx.stroke();
+	}
+   
+	currentTime += 1000 / 60;
+	requestAnimationFrame(drawAnimatedLine);
+  }
+   
+   
+	drawAnimatedLine();
+  }
+   
+   
+   
+   
+   
+  function drawLine5(color, startPosition) {
+   
+	ctx.strokeStyle = color;
+	ctx.lineWidth = 1;
+	const latestPos = linePositions2[linePositions2.length - 1];
+	const angle = radians(random([0, 90, 180, 270, 360, 540, 720,]));
+	const length = 15;
+	const endPos = calculateEndPosition(latestPos, angle, length, squareX, squareY, squareSize);
+  const endX = endPos.x;
+  const endY = endPos.y;
+  if (endX < squareX || endX > squareX + squareSize || endY < squareY || endY > squareY + squareSize) {
+		  // Set the endpoint to a random point within the square
+		  endX = squareX + Math.random() * squareSize;
+		  endY = squareY + Math.random() * squareSize;
+		}
+   
+   
+	let currentTime = 0;
+  const bpm2 = parseFloat(bpmInput2.value);
+  const duration2 = 60 / bpm2;
+  const totalTime = duration2 * 1000; // Now totalTime is controlled by Synth 2 BPM
+   
+   
+   
+   
+  function drawAnimatedLine() {
+	if (currentTime >= totalTime) {
+	  linePositions.push({ x: endX, y: endY, canvas: canvas });
+	  return;
+	}
+   
+	const partialLength = length * (currentTime / totalTime);
+	const partialEndX = latestPos.x + cos(angle) * partialLength;
+	const partialEndY = latestPos.y + sin(angle) * partialLength;
+   
+	ctx.clearRect(
+	  Math.min(latestPos.x, partialEndX) - ctx.lineWidth,
+	  Math.min(latestPos.y, partialEndY) - ctx.lineWidth,
+	  Math.abs(latestPos.x - partialEndX) + 2 * ctx.lineWidth,
+	  Math.abs(latestPos.y - partialEndY) + 2 * ctx.lineWidth
+	);
+   
+	ctx.beginPath();
+	ctx.moveTo(latestPos.x, latestPos.y);
+   
+	const numSegments = 100;
+	for (let i = 1; i <= numSegments; i++) {
+	  const segmentProgress = i / numSegments;
+	  if (segmentProgress * length > partialLength) break;
+	  const segmentX = latestPos.x + cos(angle) * length * segmentProgress;
+	  const segmentY = latestPos.y + sin(angle) * length * segmentProgress;
+   
+	  const pencilWidth = Math.random() * 0.5 + 0.5;
+	  const pencilOpacity = Math.random() * 0.5 + 0.5;
+   
+	  ctx.lineWidth = pencilWidth;
+	  ctx.strokeStyle = `white, ${pencilOpacity})`;
+   
+   
+	  ctx.beginPath();
+	  ctx.moveTo(segmentX - pencilWidth / 2, segmentY - pencilWidth / 2);
+	  ctx.lineTo(segmentX + pencilWidth / 2, segmentY + pencilWidth / 2);
+	  ctx.stroke();
+	}
+   
+	currentTime += 1000 / 60;
+	requestAnimationFrame(drawAnimatedLine);
+  }
+   
+   
+	drawAnimatedLine();
+  }
+   
+   
+   
+   
+   
+   
+  function drawLine6(color, startPosition) {
+	ctx.globalAlpha = 0.9; // Set transparency
+	ctx.strokeStyle = color;
+	ctx.lineWidth = 3;
+	const latestPos = linePositions2[linePositions2.length - 1];
+	const angle = radians(random([0, 90, 180, 270, 360, 540, 720,]));
+	const length = Math.random() * (200 - 50) + 50;
+	const endPos = calculateEndPosition(latestPos, angle, length, squareX, squareY, squareSize);
+  const endX = endPos.x;
+  const endY = endPos.y;
+  if (endX < squareX || endX > squareX + squareSize || endY < squareY || endY > squareY + squareSize) {
+		  // Set the endpoint to a random point within the square
+		  endX = squareX + Math.random() * squareSize;
+		  endY = squareY + Math.random() * squareSize;
+		}
+   
+   
+	let currentTime = 0;
+  const bpm3 = parseFloat(bpmInput3.value);
+  const duration3 = 60 / bpm3;
+  const totalTime = duration3 * 1000; // Now totalTime is controlled by Synth 2 BPM
+   
+   
+  function drawAnimatedLine() {
+	if (currentTime >= totalTime) {
+	  linePositions.push({ x: endX, y: endY, canvas: canvas });
+	  return;
+	}
+   
+	const partialLength = length * (currentTime / totalTime);
+	const partialEndX = latestPos.x + cos(angle) * partialLength;
+	const partialEndY = latestPos.y + sin(angle) * partialLength;
+   
+	ctx.clearRect(
+	  Math.min(latestPos.x, partialEndX) - ctx.lineWidth,
+	  Math.min(latestPos.y, partialEndY) - ctx.lineWidth,
+	  Math.abs(latestPos.x - partialEndX) + 2 * ctx.lineWidth,
+	  Math.abs(latestPos.y - partialEndY) + 2 * ctx.lineWidth
+	);
+   
+	ctx.beginPath();
+	ctx.moveTo(latestPos.x, latestPos.y);
+   
+	const numSegments = 100;
+	for (let i = 1; i <= numSegments; i++) {
+	  const segmentProgress = i / numSegments;
+	  if (segmentProgress * length > partialLength) break;
+	  const segmentX = latestPos.x + cos(angle) * length * segmentProgress;
+	  const segmentY = latestPos.y + sin(angle) * length * segmentProgress;
+   
+	  const pencilWidth = Math.random() * 0.5 + 0.5;
+	  const pencilOpacity = Math.random() * 0.8 + 0.1;
+   
+	  ctx.lineWidth = pencilWidth;
+	  ctx.strokeStyle = color;
+   
+   
+   
+	  ctx.beginPath();
+	  ctx.moveTo(segmentX - pencilWidth / 2, segmentY - pencilWidth / 2);
+	  ctx.lineTo(segmentX + pencilWidth / 2, segmentY + pencilWidth / 2);
+	  ctx.stroke();
+	}
+   
+	currentTime += 1000 / 60;
+	requestAnimationFrame(drawAnimatedLine);
+  }
+   
+   
+	drawAnimatedLine();
+  }
+   
+   
+   
+   
+   
+   
+  function drawLine7(color, startPosition) {
+	ctx.strokeStyle = color;
+   
+   
+	ctx.lineWidth = 0.05;
+   
+   
+	const latestPos = linePositions2[linePositions2.length - 1];
+	const angle = radians(random([0, 90, 270, 540]));
+	const length = Math.random() * (300 - 50) + 50;
+   
+  const endPos = calculateEndPosition(latestPos, angle, length, squareX, squareY, squareSize);
+  const endX = endPos.x;
+  const endY = endPos.y;
+   
+  if (endX < squareX || endX > squareX + squareSize || endY < squareY || endY > squareY + squareSize) {
+		  // Set the endpoint to a random point within the square
+		  endX = squareX + Math.random() * squareSize;
+		  endY = squareY + Math.random() * squareSize;
+		}
+   
+	let currentTime = 0;
+	const bpm3 = parseFloat(bpmInput3.value);
+	const duration3 = 60 / bpm3;
+	const totalTime = duration3 * 1000;
+	const partialLength = length * (currentTime / totalTime);
+	const partialEndX = latestPos.x + cos(angle) * partialLength;
+	const partialEndY = latestPos.y + sin(angle) * partialLength;
+   
+	function drawAnimatedLine() {
+	if (currentTime >= totalTime) {
+	  linePositions2.push({ x: endX, y: endY});
+	  return;
+	}
+   
+	ctx.clearRect(
+	  Math.min(latestPos.x, partialEndX) - ctx.lineWidth,
+	  Math.min(latestPos.y, partialEndY) - ctx.lineWidth,
+	  Math.abs(latestPos.x - partialEndX) + 2 * ctx.lineWidth,
+	  Math.abs(latestPos.y - partialEndY) + 2 * ctx.lineWidth
+	);
+	ctx.beginPath();
+	ctx.moveTo(startPosition.x, startPosition.y);
+	const partialLength = length * (currentTime / totalTime);
+	const amplitude = 10; // Adjust this value to control the amplitude of the snake-like motion
+	const frequency = 0.5; // Adjust this value to control the frequency of the snake-like motion
+   
+	const numSegments = 100; // Number of segments in the slithering line
+	for (let i = 1; i <= numSegments; i++) {
+	  const segmentProgress = i / numSegments;
+	  if (segmentProgress * length > partialLength) break; // Stop drawing when we reach the current length
+	  const segmentX = latestPos.x + cos(angle) * length * segmentProgress;
+	  const segmentY = latestPos.y + sin(angle) * length * segmentProgress;
+   
+	  const snakeWave = amplitude * Math.sin(segmentProgress * totalTime * frequency);
+	  const offsetX = -sin(angle) * snakeWave;
+	  const offsetY = cos(angle) * snakeWave;
+   
+	  const pencilWidth = Math.random() * 0.5 + 0.5;
+	  const pencilOpacity = Math.random() * 0.2 + 0.2;
+   
+	  ctx.lineWidth = 0.2;
+	  ctx.strokeStyle = `color, ${pencilOpacity * 0.1})`;
+   
+   
+   
+	  ctx.beginPath();
+	  ctx.moveTo(segmentX + offsetX - pencilWidth / 2, segmentY + offsetY - pencilWidth / 2);
+	  ctx.lineTo(segmentX + offsetX + pencilWidth / 2, segmentY + offsetY + pencilWidth / 2);
+	  ctx.stroke();
+	}
+   
+	currentTime += 1000 / 60; // 1000ms / 60fps
+	requestAnimationFrame(drawAnimatedLine);
+  }
+   
+   
+   
+   
+   
+   
+   
+	drawAnimatedLine();
+  }
+   
+  function drawLine8(color, startPosition) {
+	ctx.strokeStyle = color;
+	ctx.lineWidth = 0.4;
+   
+	const numLines = 1; // Number of lines to be drawn simultaneously
+	const windSpeed = 2; // Adjust this value to control the wind speed
+	const noiseScale = 0.005; // Controls the smoothness of the noise
+	const initialOffset = 15; // Adjust this value to control the initial offset of the lines
+   
+	let lineData = [];
+   
+	// Initialize lineData with starting positions and angles for each line
+	for (let i = 0; i < numLines; i++) {
+	  const angle = Math.random() * Math.PI * 2; // Random angle between 0 and 2*PI
+	  const offsetX = Math.cos(angle) * initialOffset;
+	  const offsetY = Math.sin(angle) * initialOffset;
+	  const noiseOffset = Math.random() * 1000; // Random offset for Perlin noise
+   
+	  lineData.push({
+		startPosition: { x: startPosition.x + offsetX, y: startPosition.y + offsetY },
+		angle: angle,
+		noiseOffset: noiseOffset,
+	  });
+	}
+   
+	let currentTime = 0;
+	const bpm3 = parseFloat(bpmInput3.value);
+	const duration3 = 60 / bpm3;
+	const totalTime = duration3 * 1000;
+   
+	function drawAnimatedLine() {
+	  if (currentTime >= totalTime) {
+		return;
+	  }
+   
+	  for (let i = 0; i < numLines; i++) {
+		const line = lineData[i];
+   
+		// Calculate Perlin noise-based wind effect
+		const windDirection =
+		  noise((line.startPosition.x + line.noiseOffset) * noiseScale, (line.startPosition.y + line.noiseOffset) * noiseScale) *
+		  Math.PI *
+		  2;
+		const windOffsetX = Math.cos(windDirection) * windSpeed;
+		const windOffsetY = Math.sin(windDirection) * windSpeed;
+   
+		const newX = line.startPosition.x + windOffsetX;
+		const newY = line.startPosition.y + windOffsetY;
+   
+		// Draw the line segment
+		ctx.beginPath();
+		ctx.moveTo(line.startPosition.x, line.startPosition.y);
+		ctx.lineTo(newX, newY);
+		ctx.stroke();
+   
+		// Update the line's start position for the next frame
+		line.startPosition.x = newX;
+		line.startPosition.y = newY;
+	  }
+   
+	  currentTime += 1000 / 60; // 1000ms / 60fps
+	  requestAnimationFrame(drawAnimatedLine);
+	}
+   
+	drawAnimatedLine();
+  }
+   
+   
+   
+   
+   
+   
+   
+  // Perlin noise implementation from https://gist.github.com/banksean/304522
+  (function() {
+	let perlin = {
+	  rand_vect: function() {
+		let theta = Math.random() * 2 * Math.PI;
+		return { x: Math.cos(theta), y: Math.sin(theta) };
+	  },
+	  dot_prod_grid: function(x, y, vx, vy) {
+		let g_vect;
+		let d_vect = { x: x - vx, y: y - vy };
+		if (this.gradients[[vx, vy]] === undefined) {
+		  g_vect = this.rand_vect();
+		  this.gradients[[vx, vy]] = g_vect;
+		} else {
+		  g_vect = this.gradients[[vx, vy]];
+		}
+		return d_vect.x * g_vect.x + d_vect.y * g_vect.y;
+	  },
+	  smootherstep: function(x) {
+		return 6 * Math.pow(x, 5) - 15 * Math.pow(x, 4) + 10 * Math.pow(x, 3);
+	  },
+	  interp: function(x, a, b) {
+		return a + this.smootherstep(x) * (b - a);
+	  },
+	  seed: function() {
+		this.gradients = {};
+		this.memory = {};
+	  },
+	  get: function(x, y) {
+		if (this.memory[[x, y]] === undefined) {
+		  let xf = Math.floor(x);
+		  let yf = Math.floor(y);
+		  let tr = this.dot_prod_grid(x, y, xf + 1, yf + 1);
+		  let tl = this.dot_prod_grid(x, y, xf, yf + 1);
+		  let bl = this.dot_prod_grid(x, y, xf, yf);
+		  let br = this.dot_prod_grid(x, y, xf + 1, yf);
+		  let xt = this.interp(x - xf, tl, tr);
+		  let xb = this.interp(x - xf, bl, br);
+		  let v = this.interp(y - yf, xb, xt);
+		  this.memory[[x, y]] = v;
+		}
+		return this.memory[[x, y]];
+	  },
+	};
+   
+	perlin.seed();
+	window.noise = function(x, y) {
+	  return perlin.get(x, y);
+	};
+  })();
+   
+   
+  function drawFlowField(color, startPosition) {
+	const width = Math.random() * (50 - 50) + 50;
+	const height = Math.random() * (12 - 10) + 10;
+   
+	const alpha = Math.random() * (0.5 - 0.1) + 0.1; // Random value between 0.1 and 0.5
+	const segmentSize = Math.random() * (1 - 0.1) + 0.1; // Random value between 0.1 and 1
+	const dropletCount = Math.floor(Math.random() * (1000 - 500) + 500); // Random integer between 500 and 2000
+   
+	const windSpeed = Math.random() * (10 - 0.5) + 0.5; // Random value between 0.5 and 3
+	const noiseScale = 0.01; // Controls the smoothness of the noise
+   
+	const endX = startPosition.x;
+	const endY = startPosition.y;
+   
+	let currentTime = 0;
+	const bpm3 = parseFloat(bpmInput3.value);
+	const duration3 = 60 / bpm3;
+	const totalTime = duration3 * 1000;
+   
+	function drawAnimatedFlowField() {
+	  if (currentTime >= totalTime) {
+		return;
+	  }
+   
+	  const progress = currentTime / totalTime;
+   
+	  for (let i = 0; i < dropletCount * progress; i++) {
+		const offsetX = (Math.random() * progress * 5 - 1) * (width / 5 + Math.random() * width / 4);
+		const offsetY = (Math.random() * 2 - 1) * (height / 2 + Math.random() * height / 4);
+   
+		// Calculate Perlin noise-based wind effect
+		const windDirection = noise(endX * noiseScale, endY * noiseScale) * Math.PI * 2;
+		const windOffsetX = Math.cos(windDirection) * windSpeed * progress;
+		const windOffsetY = Math.sin(windDirection) * windSpeed * progress;
+   
+		const red = Math.floor(Math.random() * 256);
+		const green = Math.floor(Math.random() * 256);
+		const blue = Math.floor(Math.random() * 256);
+		ctx.fillStyle = `rgba(${red}, ${green}, ${blue}, ${alpha})`;
+		ctx.fillRect(endX + offsetX + windOffsetX, endY + offsetY + windOffsetY, segmentSize, segmentSize);
+	  }
+   
+	  currentTime += 1000 / 60;
+	  requestAnimationFrame(drawAnimatedFlowField);
+	}
+   
+	drawAnimatedFlowField();
+  }
+   
+   
+  const flowFieldSize = 20;
+  const flowField = new Array(flowFieldSize * flowFieldSize).fill(0).map(() => ({
+  angle: Math.random() * Math.PI * 2,
+  strength: 0.9 / bpm6 + (Math.random() * 0.1 / bpm6), // Adjust this value to control the strength of the flow field
+}));
+
+
+
+
+function getFlowFieldForce(x, y) {
+  const indexX = Math.floor(x / squareSize * flowFieldSize);
+  const indexY = Math.floor(y / squareSize * flowFieldSize);
+  const index = indexY * flowFieldSize + indexX;
+
+  const force = flowField[index];
+  return {
+    x: force.strength * Math.cos(force.angle),
+    y: force.strength * Math.sin(force.angle),
+  };
+}
+
+
+function fieldFlow(x, y) {
+  const flowScale = 10;
+  const angle = noise(x * 0.01, y * 0.01) * Math.PI * 2;
+  return {
+    x: Math.cos(angle) * flowScale,
+    y: Math.sin(angle) * flowScale,
+  };
+}
+   
+   
+   
+  // Helper function to convert degrees to radians
+  function degreesToRadians(degrees) {
+	return degrees * (Math.PI / 180);
+  }
+  function fieldFlow(x, y) {
+	const flowScale = 10;
+	const angle = noise(x * 0.01, y * 0.01) * Math.PI * 2;
+	return {
+	  x: Math.cos(angle) * flowScale,
+	  y: Math.sin(angle) * flowScale,
+	};
+  }
+   
+   
+  function drawHelix(color, startPosition) {
+	ctx.strokeStyle = color;
+	ctx.lineWidth = 0.1;
+   
+	const latestPos = linePositions2[linePositions2.length - 1];
+	const angle = degreesToRadians(Math.random() * 540);
+	const length = Math.random() * (300 - 50) + 50;
+   
+	const endPos = calculateEndPosition(latestPos, angle, length, squareX, squareY, squareSize);
+	let endX = endPos.x;
+	let endY = endPos.y;
+   
+	if (endX < squareX || endX > squareX + squareSize || endY < squareY || endY > squareY + squareSize) {
+	  // Set the endpoint to a random point within the square
+	  endX = squareX + Math.random() * squareSize;
+	  endY = squareY + Math.random() * squareSize;
+	}
+   
+	let currentTime = 0;
+	const bpm6 = parseFloat(bpmInput6.value);
+	const duration6 = 60 / bpm6;
+	const totalTime = duration6 * 1000;
+	const partialLength = length * (currentTime / totalTime);
+	const partialEndX = latestPos.x + Math.cos(angle) * partialLength;
+	const partialEndY = latestPos.y + Math.sin(angle) * partialLength;
+   
+function drawAnimatedHelix(bpm6) {
+  if (currentTime >= totalTime) {
+    linePositions2.push({ x: endX, y: endY });
+    return;
+  }
+
+  ctx.clearRect(
+    Math.min(latestPos.x, partialEndX) - ctx.lineWidth,
+    Math.min(latestPos.y, partialEndY) - ctx.lineWidth,
+    Math.abs(latestPos.x - partialEndX) + 2 * ctx.lineWidth,
+    Math.abs(latestPos.y - partialEndY) + 2 * ctx.lineWidth
+  );
+
+  ctx.beginPath();
+  ctx.moveTo(startPosition.x, startPosition.y);
+
+  const partialLength = length * (currentTime / totalTime);
+  const amplitude = Math.random() * (5 - 1) + 1;
+  const frequency = 0.05;
+
+  const numSegments = 200;
+
+  for (let i = 1; i <= numSegments; i++) {
+    const segmentProgress = i / numSegments;
+    if (segmentProgress * length > partialLength) break;
+
+    const segmentX = latestPos.x + Math.cos(angle) * length * segmentProgress;
+    const segmentY = latestPos.y + Math.sin(angle) * length * segmentProgress;
+
+    const flowFieldForce = fieldFlow(segmentX, segmentY);
+    const helixX = segmentX + flowFieldForce.x;
+    const helixY = segmentY + flowFieldForce.y;
+
+    const helixWave1 = amplitude * Math.sin(segmentProgress * totalTime * frequency);
+    const offsetX1 = -Math.sin(angle) * helixWave1;
+    const offsetY1 = Math.cos(angle) * helixWave1;
+
+    const helixWave2 = amplitude * Math.sin(segmentProgress * totalTime * frequency + Math.PI);
+    const offsetX2 = -Math.sin(angle) * helixWave2;
+    const offsetY2 = Math.cos(angle) * helixWave2;
+
+    ctx.lineWidth = 0.1;
+    ctx.strokeStyle = `white`; // Neon blue color
+
+    // Draw helix 1
+    ctx.beginPath();
+    ctx.moveTo(helixX + offsetX1, helixY + offsetY1);
+    ctx.lineTo(helixX + offsetX1 + ctx.lineWidth, helixY + offsetY1 + ctx.lineWidth);
+    ctx.stroke();
+
+    // Draw helix 2
+    ctx.beginPath();
+    ctx.moveTo(helixX + offsetX2, helixY + offsetY2);
+    ctx.lineTo(helixX + offsetX2 + ctx.lineWidth, helixY + offsetY2 + ctx.lineWidth);
+    ctx.stroke();
+  }
+
+  currentTime += 1000 / 1000;
+  setTimeout(() => drawAnimatedHelix(bpm6), 1000 * duration6 / numSegments / bpm6 * 10);
+
+}
+
+
+drawAnimatedHelix();
+  }
+   
+   
+   
+   
+   
+   
+  function drawCloud(color) {
+	const numCircles = 10;
+   
+	function normalRandom(mean, stdDev) {
+	  let u = 0;
+	  let v = 0;
+	  while (u === 0) u = Math.random();
+	  while (v === 0) v = Math.random();
+	  return mean + stdDev * Math.sqrt(-2.0 * Math.log(u)) * Math.cos(2.0 * Math.PI * v);
+	}
+   
+	const centerX = squareX + Math.random() * squareSize;
+	const centerY = squareY + Math.random() * squareSize;
+   
+	function drawCircle(index, stopDrawing) {
+	  if (index >= numCircles || stopDrawing) {
+		return;
+	  }
+   
+	  ctx.fillStyle = color;
+   
+	  const offsetX = normalRandom(0, 15); // Adjust the 2nd parameter to control the cloud spread
+	  const offsetY = normalRandom(0, 15); // Adjust the 2nd parameter to control the cloud spread
+	  const circleX = centerX + offsetX;
+	  const circleY = centerY + offsetY;
+	  const radius = Math.random() * 2 + 1; // Random radius between 1 and 3
+   
+	  ctx.beginPath();
+	  ctx.arc(circleX, circleY, radius, 0, 2 * Math.PI);
+	  ctx.fill();
+   
+	  // Schedule the next circle
+	  const bpm5 = parseFloat(bpmInput5.value);
+	  const duration = 60 / bpm5;
+	  setTimeout(() => {
+		drawCircle(index + 1, stopDrawing);
+	  }, duration * 1000);
+	}
+   
+	drawCircle(0, stopDrawing);
+  }
+   
+  /*
+  function drawGrade(color, startPosition) {
+	const width = Math.random() * (150 - 50) + 50;
+	const height = Math.random() * (20 - 10) + 10;
+   
+	const alpha = Math.random() * (0.5 - 0.1) + 0.1; // Random value between 0.1 and 0.5
+	const segmentSize = Math.random() * (1 - 0.1) + 0.1; // Random value between 0.1 and 1
+	const dropletCount = Math.floor(Math.random() * (1000 - 500) + 500); // Random integer between 500 and 2000
+   
+	const windDirection = Math.random() * Math.PI * 5; // Random value between 0 and 2*PI
+	const windSpeed = Math.random() * (10 - 0.5) + 0.5; // Random value between 0.5 and 3
+   
+	const latestPos = linePositions2[linePositions2.length - 1];
+	const angle = radians(random([0, 45, 90]));
+	const length = Math.random() * (200 - 50) + 50;
+	const endPos = calculateEndPosition(latestPos, angle, length, squareX, squareY, squareSize);
+	let endX = endPos.x;
+	let endY = endPos.y;
+   
+	let currentTime = 0;
+	const bpm3 = parseFloat(bpmInput3.value);
+	const duration3 = 60 / bpm3;
+	const totalTime = duration3 * 1000;
+   
+	function drawAnimatedGrade() {
+	  if (currentTime >= totalTime) {
+		linePositions.push({ x: endX, y: endY, canvas: canvas });
+		return;
+	  }
+   
+	  const progress = currentTime / totalTime;
+   
+	  for (let i = 0; i < dropletCount * progress; i++) {
+		const offsetX = (Math.random() * progress * 2 - 1) * (width / 2 + Math.random() * width / 4);
+		const offsetY = (Math.random() * 2 - 1) * (height / 2 + Math.random() * height / 4);
+   
+		// Calculate wind effect
+		const windOffsetX = Math.cos(windDirection) * windSpeed * progress;
+		const windOffsetY = Math.sin(windDirection) * windSpeed * progress;
+   
+		const red = Math.floor(Math.random() * 256);
+		const green = Math.floor(Math.random() * 256);
+		const blue = Math.floor(Math.random() * 256);
+		ctx.fillStyle = `rgba(${red}, ${green}, ${blue}, ${alpha})`;
+		ctx.fillRect(endX + offsetX + windOffsetX, endY + offsetY + windOffsetY, segmentSize, segmentSize);
+	  }
+   
+	  currentTime += 1000 / 60;
+	  requestAnimationFrame(drawAnimatedGrade);
+	}
+   
+	drawAnimatedGrade();
+  }
+  */
+   
+   
+   
+   
+   
+   
+   
+   
+   
+   
+   
+   
+   
+   
+   
+   
+  const melody4_1 = ['b2', 'c2', 'd3', 'e3', 'f3', 'g3', 'a4'];
+  const melody4_2 = ['d2', 'e2', 'f2', 'g2', 'a3', 'b3'];
+  const melodies = [melody4_1, melody4_2];
+   
+  // Function to convert note names to frequencies
+  function noteToFrequency(note) {
+	const A4 = 440;
+	const A4_INDEX = 49; 
+	const SEMITONES = ['a', 'a#', 'b', 'c', 'c#', 'd', 'd#', 'e', 'f', 'f#', 'g', 'g#'];
+	const noteIndex = SEMITONES.indexOf(note.slice(0, -1).toLowerCase());
+	const octave = parseInt(note.slice(-1));
+	const noteNumber = noteIndex + 12 * (octave - 1) + 1;
+	return A4 * Math.pow(2, (noteNumber - A4_INDEX) / 12);
+  }
+   
+  // Create a function to play the specific melody
+  // Create a function to play the specific melody
+  function playMelody4(index = 0, melody) {
+	if (index >= melody.length) {
+	  return;
+	}
+   
+	const note = noteToFrequency(melody[index]);
+   
+	const bpm5 = parseFloat(bpmInput5.value);
+	const duration = 60 / bpm5; // Use bpm5 instead of bpm4
+   
+	oscillator5 = audioContext.createOscillator();
+	gainNode5 = audioContext.createGain();
+	gainNode5.gain.setValueAtTime(0, audioContext.currentTime);
+	gainNode5.gain.linearRampToValueAtTime(parseFloat(volumeInput5.value) * 0.5, audioContext.currentTime + parseFloat(attackInput5.value));
+	gainNode5.gain.linearRampToValueAtTime(parseFloat(sustainInput5.value) * parseFloat(volumeInput5.value) * 0.5, audioContext.currentTime + parseFloat(attackInput5.value) + parseFloat(decayInput5.value));
+   
+	oscillator5.frequency.setValueAtTime(note, audioContext.currentTime);
+	oscillator5.connect(gainNode5);
+	gainNode5.connect(audioContext.destination);
+	oscillator5.start();
+   
+	timeout5 = setTimeout(() => {
+	  oscillator5.stop();
+   
+	  // Check if the oscillator and gainNode are connected before disconnecting
+	  if (oscillator5 && oscillator5.numberOfOutputs > 0 && oscillator5.outputs) {
+		oscillator5.disconnect(gainNode5);
+	  }
+	  if (gainNode5 && gainNode5.numberOfInputs > 0) {
+		gainNode5.disconnect(audioContext.destination);
+	  }
+   
+	  // Play the next note in the melody
+	 
+	 /* playMelody4(index + 1, melody);*/
+	}, duration * 1000);
+  }
+
+
+
+   
+   
+  const melodies2 = [
+  [99, 104.25, 132, 159.75, 185.25, 213, 198],
+  [208.5, 264, 319.5, 370.5, 426, 396, 417],
+  [528, 639, 741, 852, 99, 104.25, 132],
+  [159.75, 185.25, 213, 198, 208.5, 264, 319.5],
+  [370.5, 426, 396, 417, 528, 639, 741]
+];
+
+let delayNode2 = createDelayNode(0.5, 0.5);
+
+function createDelayNode(delayTime, feedbackGain) {
+  const delayNode = audioContext.createDelay();
+  const feedbackGainNode = audioContext.createGain();
+
+  delayNode.delayTime.value = delayTime;
+  feedbackGainNode.gain.value = feedbackGain;
+
+  delayNode.connect(feedbackGainNode);
+  feedbackGainNode.connect(delayNode);
+
+  return delayNode;
+}
+
+function playMelody5(index = 0) {
+  // Select a random melody from melodies2
+  const melodyIndex = Math.floor(Math.random() * melodies2.length);
+  const melody = melodies2[melodyIndex];
+
+  console.log("Playing melody:", melody);
+
+  const playNextNote = () => {
+    if (index >= melody.length) {
+      return;
+    }
+
+    const frequency = melody[index];
+
+    const bpm6 = parseFloat(bpmInput6.value);
+    const duration = 60 / bpm6;
+
+    oscillator6 = audioContext.createOscillator();
+    gainNode6 = audioContext.createGain();
+    gainNode6.gain.setValueAtTime(0, audioContext.currentTime);
+    gainNode6.gain.linearRampToValueAtTime(parseFloat(volumeInput6.value) * 0.5, audioContext.currentTime + parseFloat(attackInput6.value));
+    gainNode6.gain.linearRampToValueAtTime(parseFloat(sustainInput6.value) * parseFloat(volumeInput6.value) * 0.5, audioContext.currentTime + parseFloat(attackInput6.value) + parseFloat(decayInput6.value));
+
+    oscillator6.frequency.setValueAtTime(frequency, audioContext.currentTime);
+    oscillator6.connect(gainNode6);
+
+    // Connect the gain node to delayNode2
+    gainNode6.connect(delayNode2);
+
+    // Connect delayNode2 to the destination
+    delayNode2.connect(audioContext.destination);
+
+    oscillator6.start();
+
+    timeout6 = setTimeout(() => {
+      oscillator6.stop();
+
+      // Check if the oscillator and gainNode are connected before disconnecting
+      if (oscillator6 && oscillator6.numberOfOutputs > 0 && oscillator6.outputs) {
+        oscillator6.disconnect(gainNode6);
+      }
+      if (gainNode6 && gainNode6.numberOfInputs > 0) {
+        gainNode6.disconnect(delayNode2);
+      }
+
+      index++;
+      playNextNote();
+    }, duration * 1000);
+  };
+
+  playNextNote();
+}
+
+
+   
+   
+   
+   
+  function playRandomNote1() {
+	if (!playing1) {
+	  return;
+	}
+   
+	const frequency = notes[Math.floor(Math.random() * notes.length)];
+	oscillator1 = audioContext.createOscillator();
+	gainNode1 = audioContext.createGain();
+	const delayTime = 0.2; // Set your desired delay time
+	const feedbackGain = 0.9; // Set your desired feedback gain
+	const globalDelayNode = createDelayNode(delayTime, feedbackGain);
+   
+	oscillator1.type = 'sine';
+	oscillator1.frequency.value = frequency;
+   
+	gainNode1.gain.setValueAtTime(0, audioContext.currentTime);
+	gainNode1.gain.linearRampToValueAtTime(parseFloat(volumeInput1.value) * 0.5, audioContext.currentTime + parseFloat(attackInput1.value));
+	gainNode1.gain.linearRampToValueAtTime(parseFloat(sustainInput1.value) * parseFloat(volumeInput1.value) * 0.5, audioContext.currentTime + parseFloat(attackInput1.value) + parseFloat(decayInput1.value));
+   
+   
+	oscillator1.connect(gainNode1);
+	gainNode1.connect(globalDelayNode);
+	globalDelayNode.connect(audioContext.destination);
+   
+	oscillator1.start();
+   
+   
+	/*drawLine('black');*/
+	drawFlowerOfLife('white', 0.2, 0.2);
+
+   
+   
+   
+	const bpm1 = parseFloat(bpmInput1.value);
+	const duration1 = 60 / bpm1;
+	timeout1 = setTimeout(() => {
+  gainNode1.gain.cancelScheduledValues(audioContext.currentTime);
+  gainNode1.gain.setValueAtTime(gainNode1.gain.value, audioContext.currentTime);
+  gainNode1.gain.linearRampToValueAtTime(0, audioContext.currentTime + parseFloat(releaseInput1.value) * 0.5);
+
+  oscillator1.stop(audioContext.currentTime + parseFloat(releaseInput1.value) * 0.5);
+   
+  let startX = Math.random() * window.innerWidth;
+  let startY = Math.random() * window.innerHeight;
+  let startPosition = { x: startX, y: startY };
+   
+	  // Check if the frequency corresponds to either note C or note G
+	  if (frequency === noteC) {
+	if (!playing2) {
+	  playing2 = true;
+	  playRandomNote2();
+	}
+  } else if (frequency === noteG) {
+	if (playing2) {
+	  playing2 = false;
+	  if (oscillator2) {
+		oscillator2.stop();
+   
+		// Check if the oscillator and gainNode are connected before disconnecting
+		if (oscillator2 && oscillator2.numberOfOutputs > 0) {
+		  oscillator2.disconnect(gainNode2);
+		}
+	  }
+	  clearTimeout(timeout2);
+	}
+   /*
+	drawLine5('black', startPosition);
+	drawHelix('white', startPosition);*/
+	  playMelody5(0, melodies2);
+
+   
+  }
+  if (frequency === noteD) {
+	if (!playing3) {
+	  playing3 = true;
+	  playRandomNote3();
+	}
+  } else if (frequency === noteB) {
+	if (playing3) {
+	  playing3 = false;
+	  if (oscillator3) {
+		oscillator3.stop();
+   
+		// Check if the oscillator and gainNode are connected before disconnecting
+		if (oscillator3 && oscillator3.numberOfOutputs > 0) {
+		  oscillator3.disconnect(gainNode3);
+		}
+	  }
+	  clearTimeout(timeout3);
+	}
+  }
+   
+  if (frequency === noteE) {
+	if (!playing4) {
+	  playing4 = true;
+	  playRandomNote4(); 
+	  /*drawHelix('white', startPosition);
+	  /*playMelody5(0, melodies2);*/
+
+	}
+  } else if (frequency === noteB || frequency === noteE3) {
+	if (playing4) {
+	  playing4 = false;
+	  if (oscillator4) {
+		oscillator4.stop();
+   
+		// Check if the oscillator and gainNode are connected before disconnecting
+		if (oscillator4 && oscillator4.numberOfOutputs > 0) {
+		  oscillator4.disconnect(gainNode4);
+		}
+	  }
+	  clearTimeout(timeout4);
+	}
+  }
+  if (frequency === noteF) {
+	if (!playing5) {
+	  playing5 = true;
+	  stopDrawing = false;
+	  /*drawCloud('black', startPosition, stopDrawing);
+	  /* drawGrade('white', startPosition);*/
+   
+		// Choose a random melody from the melodies array
+		const randomMelody = melodies[Math.floor(Math.random() * melodies.length)];
+   
+	   /*p playMelody4(0, randomMelody);
+		playMelody5;
+			drawCloud('black', { x: 200, y: 200 });*/
+	  }
+	} else if (frequency === noteB || frequency === noteE3) {
+	if (playing5) {
+	  playing5 = false;
+	  stopDrawing = true;
+	  drawCloud('white)', startPosition, stopDrawing);
+	  if (oscillator5) {
+		oscillator5.stop();
+		  // Check if the oscillator and gainNode are connected before disconnecting
+		  if (oscillator5 && oscillator5.numberOfOutputs > 0) {
+			oscillator5.disconnect(gainNode5);
+		  }
+		}
+		clearTimeout(timeout5);
+	  }
+	}
+   
+	playRandomNote1();
+  }, duration1 * 1000);
+  }
+   
+   
+  function playRandomNote2() {
+	if (!playing2) {
+	  return;
+	}
+   
+	const frequency = notes[Math.floor(Math.random() * notes.length)];
+	const randomIndex = Math.floor(Math.random() * linePositions.length);
+	const startPosition = linePositions[linePositions.length - 1];
+   
+	if (startPosition) {
+	  oscillator2 = audioContext.createOscillator();
+	  gainNode2 = audioContext.createGain();
+   
+	  oscillator2.type = 'sine';
+	  oscillator2.frequency.value = frequency;
+   
+	  gainNode2.gain.setValueAtTime(0, audioContext.currentTime);
+	  gainNode2.gain.linearRampToValueAtTime(parseFloat(volumeInput2.value) * 0.5, audioContext.currentTime + parseFloat(attackInput2.value));
+	  gainNode2.gain.linearRampToValueAtTime(parseFloat(sustainInput2.value) * parseFloat(volumeInput2.value) * 0.5, audioContext.currentTime + parseFloat(attackInput2.value) + parseFloat(decayInput2.value));
+   
+	  // Create delay node with feedback
+	  const delayNode = audioContext.createDelay();
+	  const feedbackGainNode = audioContext.createGain();
+   
+	  delayNode.delayTime.value = 0.5; // Set delay time in seconds
+	  feedbackGainNode.gain.value = 0.2; // Set feedback gain value
+   
+	  delayNode.connect(feedbackGainNode);
+	  feedbackGainNode.connect(delayNode);
+   
+	  // Connect oscillator2 -> gainNode2 -> delayNode -> audioContext.destination
+	  oscillator2.connect(gainNode2);
+	  gainNode2.connect(delayNode);
+	  delayNode.connect(audioContext.destination);
+   
+	  oscillator2.start();
+	 
+	  /*drawLine2('black');
+	  /*drawHelix('white', startPosition);
+	  playMelody5(0, melodies2);*/ 
+
+	  
+   
+	  const bpm2 = parseFloat(bpmInput2.value);
+	  const duration2 = 60 / bpm2;
+	  timeout2 = setTimeout(() => {
+  gainNode2.gain.cancelScheduledValues(audioContext.currentTime);
+  gainNode2.gain.setValueAtTime(gainNode2.gain.value, audioContext.currentTime);
+  gainNode2.gain.linearRampToValueAtTime(0, audioContext.currentTime + parseFloat(releaseInput2.value) * 0.5);
+
+  oscillator2.stop(audioContext.currentTime + parseFloat(releaseInput2.value) * 0.5);
+  playRandomNote2();
+}, duration2 * 2000);
+
+	}
+  }
+   
+  function playRandomNote3() {
+	if (!playing3) {
+	  return;
+	}
+   
+	const frequency = notes[Math.floor(Math.random() * notes.length)];
+	const randomIndex = Math.floor(Math.random() * linePositions.length);
+	const startPosition = linePositions[linePositions.length - 1];
+   
+	if (startPosition) {
+	  oscillator3 = audioContext.createOscillator();
+	  gainNode3 = audioContext.createGain();
+   
+	  oscillator3.type = 'sine';
+	  oscillator3.frequency.value = frequency;
+   
+	  gainNode3.gain.setValueAtTime(0, audioContext.currentTime);
+	  gainNode3.gain.linearRampToValueAtTime(parseFloat(volumeInput3.value) * 0.5, audioContext.currentTime + parseFloat(attackInput3.value));
+	  gainNode3.gain.linearRampToValueAtTime(parseFloat(sustainInput3.value) * parseFloat(volumeInput3.value) * 0.5, audioContext.currentTime + parseFloat(attackInput3.value) + parseFloat(decayInput3.value));
+   
+	  // Create convolution reverb node
+	  const reverbNode = audioContext.createConvolver();
+	  const reverbTime = 2; // Set reverb time in seconds
+	  const impulseResponse = createImpulseResponse(audioContext, reverbTime);
+	  reverbNode.buffer = impulseResponse;
+   
+	  // Create lowpass filter node
+	  const filterNode = audioContext.createBiquadFilter();
+	  filterNode.type = 'lowpass';
+	  filterNode.frequency.value = 2000; // Set filter frequency in Hz
+	  filterNode.Q.value = 1; // Set filter quality factor
+   
+	  // Connect oscillator3 -> gainNode3 -> filterNode -> reverbNode -> audioContext.destination
+	  oscillator3.connect(gainNode3);
+	  gainNode3.connect(filterNode);
+	  filterNode.connect(reverbNode);
+	  reverbNode.connect(audioContext.destination);
+   
+	  oscillator3.start();
+   
+	  /* drawLine3('black', startPosition);
+   
+	  drawLine8('black', startPosition);*/
+   
+	  const bpm3 = parseFloat(bpmInput3.value);
+	  const duration3 = 60 / bpm3;
+	  timeout3 = setTimeout(() => {
+  gainNode3.gain.cancelScheduledValues(audioContext.currentTime);
+  gainNode3.gain.setValueAtTime(gainNode3.gain.value, audioContext.currentTime);
+  gainNode3.gain.linearRampToValueAtTime(0, audioContext.currentTime + parseFloat(releaseInput3.value) * 0.5);
+
+  oscillator3.stop(audioContext.currentTime + parseFloat(releaseInput3.value) * 0.5);
+  playRandomNote3();
+}, duration3 * 2000);
+
+	}
+  }
+   
+  function createImpulseResponse(context, duration) {
+	const sampleRate = context.sampleRate;
+	const length = sampleRate * duration;
+	const impulse = context.createBuffer(2, length, sampleRate);
+	const impulseL = impulse.getChannelData(0);
+	const impulseR = impulse.getChannelData(1);
+   
+	for (let i = 0; i < length; i++) {
+	  const exponentialDecay = Math.pow(0.5, i / (sampleRate * 0.01));
+	  impulseL[i] = (Math.random() * 2 - 1) * exponentialDecay;
+	  impulseR[i] = (Math.random() * 2 - 1) * exponentialDecay;
+	}
+   
+	return impulse;
+  }
+   
+   
+  function playRandomNote4() {
+  if (!playing4) {
+    return;
+  }
+
+  const randomIndex = Math.floor(Math.random() * notes.length);
+  const frequency = notes[randomIndex];
+  const startPosition = linePositions[linePositions.length - 1];
+
+  if (startPosition) {
+    oscillator4 = audioContext.createOscillator();
+    gainNode4 = audioContext.createGain();
+
+    oscillator4.type = 'sine';
+    oscillator4.frequency.value = frequency;
+
+    gainNode4.gain.setValueAtTime(0, audioContext.currentTime);
+    gainNode4.gain.linearRampToValueAtTime(parseFloat(volumeInput4.value) * 0.5, audioContext.currentTime + parseFloat(attackInput4.value));
+    gainNode4.gain.linearRampToValueAtTime(parseFloat(sustainInput4.value) * parseFloat(volumeInput4.value) * 0.5, audioContext.currentTime + parseFloat(attackInput4.value) + parseFloat(decayInput4.value));
+
+    oscillator4.connect(gainNode4);
+    gainNode4.connect(audioContext.destination);
+    oscillator4.start();
+
+    // Call the appropriate drawLine function based on the frequency played
+    if (frequency === noteC) {
+    /*  drawLine8('black', startPosition);
+	
+    } else if (frequency === noteG) {
+      drawLine4('black', startPosition);
+    } else if (frequency === noteE) {
+      drawLine5('black', startPosition);
+    } else if (frequency === noteF) {
+      drawLine6('black', startPosition);
+    } else if (frequency === noteE3) {
+      drawLine7('black', startPosition);
+	  */
+    }
+
+    const bpm4 = parseFloat(bpmInput4.value);
+    const duration4 = 60 / bpm4;
+	timeout4 = setTimeout(() => {
+  gainNode4.gain.cancelScheduledValues(audioContext.currentTime);
+  gainNode4.gain.setValueAtTime(gainNode4.gain.value, audioContext.currentTime);
+  
+  // Adding a linear ramp to smoothly decrease the gain to zero before stopping the oscillator
+  gainNode4.gain.linearRampToValueAtTime(0, audioContext.currentTime + parseFloat(releaseInput4.value) * 0.5);
+
+  oscillator4.stop(audioContext.currentTime + parseFloat(releaseInput4.value) * 0.5);
+  playRandomNote4();
+}, duration4 * 1000);
+  }
+}
+
+
+   
+   
+   
+   
+  </script><canvas width="1426" height="932" style="position: absolute; top: 0px; left: 0px; z-index: 500;"></canvas>
+   
+   
+   
+  </body></html>
